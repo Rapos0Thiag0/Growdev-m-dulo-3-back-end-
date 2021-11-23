@@ -10,8 +10,11 @@ app.listen(port, () => {
   console.log(`Servidor inicializado e rodando na PORT: ${port}`);
 });
 
+// contador que vai incrementar gerando os id unicos dos usuários
+// contagem em 1 pois exite um usuario padrão de teste
 let userID: number = 1;
 
+//classe criadora de usuários
 class User {
   public id: number;
   public nome: string;
@@ -31,9 +34,13 @@ class User {
   }
 }
 
+//user teste
 const users: Array<User> = [new User(0, "Paulo", "000000000-01", [])];
 
+// contador que vai incrementar gerando as id unicas das mensagens
 let mensagensID: number = 0;
+
+// classe construtora das mensagens
 class Mensagens {
   public id: number;
   public desc: string;
@@ -46,6 +53,7 @@ class Mensagens {
   }
 }
 
+// rota chamada ao criar novo usuário
 app.post("/users", (req: Request, res: Response) => {
   const nome = String(req.body.nome);
   const senha = String(req.body.senha);
@@ -61,17 +69,18 @@ app.post("/users", (req: Request, res: Response) => {
       users.push(novoUsuario);
       userID++;
       res.status(201).json(novoUsuario);
-      console.log(users);
     } else {
       res.status(400).send("Erro nas informações do usuário.");
     }
   }
 });
 
+//rota para exibir todos os usuários criados
 app.get("/users", (req: Request, res: Response) => {
   res.json(users);
 });
 
+//rota para exibir um usuário pelo seu id
 app.get("/users/:id", (req: Request, res: Response) => {
   const idProcurado: number = Number(req.params.id);
   let idEncontrado: User | undefined = users.find(
@@ -87,14 +96,11 @@ app.get("/users/:id", (req: Request, res: Response) => {
   }
 });
 
+// rota chamada ao criar nova mensagem
 app.post("/users/:idUser/mensagens", (req: Request, res: Response) => {
   const idUser = Number(req.params.idUser);
   const desc = String(req.body.desc);
   const det = String(req.body.det);
-
-  console.log(idUser);
-  console.log(desc);
-  console.log(det);
 
   let idEncontrado: User | undefined = users.find(
     (usuario) => usuario.id === idUser
