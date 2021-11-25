@@ -41,7 +41,7 @@ class User {
 const users: Array<User> = [new User(0, "Paulo", "000000000-01", [])];
 
 // contador que vai incrementar gerando as id unicas das mensagens
-let mensagensID: number = 0;
+let mensagensID: number = 1;
 
 // classe construtora das mensagens
 class Mensagens {
@@ -61,21 +61,22 @@ app.post("/users", (req: Request, res: Response) => {
   const nome = String(req.body.nome);
   const senha = String(req.body.senha);
 
-  if (nome === "undefined" || "" || senha === "undefined" || "") {
+  if (!!!nome || nome == "" || !!!senha || senha == "") {
     res
       .status(400)
       .json({ message: "Preencha todos os campos!", error: "empty_fields" });
   } else {
-    const validaNome = users.findIndex((user) => user.nome === nome);
-    const validaSenha = users.findIndex((user) => user.senha === senha);
+    const validaNome = users.findIndex((user) => user.nome == nome);
 
-    if (validaNome === -1 && validaSenha === -1) {
+    if (validaNome == -1) {
       const novoUsuario: User = new User(userID, nome, senha, []);
       users.push(novoUsuario);
       userID++;
       res.status(201).json(novoUsuario);
     } else {
-      res.status(400).send("Erro nas informações do usuário.");
+      res
+        .status(400)
+        .json({ message: "Usuário já existe", error: "user_exist" });
     }
   }
 });
@@ -88,16 +89,23 @@ app.get("/users", (req: Request, res: Response) => {
 //rota para exibir um usuário pelo seu id
 app.get("/users/:id", (req: Request, res: Response) => {
   const idProcurado: number = Number(req.params.id);
+
   let idEncontrado: User | undefined = users.find(
     (usuario) => usuario.id === idProcurado
   );
-
   if (idEncontrado !== undefined) {
-    res.status(200).send(idEncontrado);
-  } else {
-    res
-      .status(400)
-      .send(`Não foi possível localizar o usuário com id = ${idProcurado}`);
+    res.status(200).json(idEncontrado);
+  }
+  //  else if (!!!idEncontrado!.senha || idEncontrado!.senha == undefined) {
+  //   res
+  //     .status(400)
+  //     .json({ message: "Senha não encontrada", error: "password_not_found" });
+  // }
+  else {
+    res.status(400).json({
+      message: `Não foi possível localizar o usuário com id = ${idProcurado}`,
+      error: "user_not_found",
+    });
   }
 });
 
@@ -111,19 +119,22 @@ app.post("/users/:idUser/mensagens", (req: Request, res: Response) => {
     (usuario) => usuario.id === idUser
   );
 
-  if (idEncontrado !== undefined || "NaN") {
-    if (desc === "undefined" || "" || det === "undefined" || "") {
-      res.status(400).send("Preencha todos os campos!");
+  if (idEncontrado !== undefined || isNaN) {
+    if (!!!desc || "" || !!!det || "") {
+      res
+        .status(400)
+        .json({ message: "Preencha todos os campos!", error: "empty_fields" });
     } else {
       const novaMensagem: Mensagens = new Mensagens(mensagensID, desc, det);
       users[idUser].mensagens.push(novaMensagem);
       mensagensID++;
-      res.status(201).send("Nova mensagem adicionada com sucesso.");
+      res.status(201).json(novaMensagem);
     }
-    res.status(200).send(idEncontrado);
+    res.status(200).json({ message: `${idEncontrado}`, success: "success" });
   } else {
-    res
-      .status(400)
-      .send(`Não foi possível localizar o usuário com id = ${idUser}`);
+    res.status(400).json({
+      message: `Não foi possível localizar o usuário com id = ${idUser}`,
+      error: "user_not_found",
+    });
   }
 });
