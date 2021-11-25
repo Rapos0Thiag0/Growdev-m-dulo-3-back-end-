@@ -62,7 +62,9 @@ app.post("/users", (req: Request, res: Response) => {
   const senha = String(req.body.senha);
 
   if (nome === "undefined" || "" || senha === "undefined" || "") {
-    res.status(400).send("Preencha todos os campos!");
+    res
+      .status(400)
+      .json({ message: "Preencha todos os campos!", error: "empty_fields" });
   } else {
     const validaNome = users.findIndex((user) => user.nome === nome);
     const validaSenha = users.findIndex((user) => user.senha === senha);
