@@ -166,7 +166,7 @@ app.get("/api/:userId/mensagens/:mensagemId", (req: Request, res: Response) => {
 
   if (userMsg !== undefined) {
     res.status(200).json({
-      message: "Mensagem: " + idMsg + ". Do usuário: " + idUser,
+      message: "Mensagem: " + idMsg + ". Do usuário: " + users[idUser].nome,
       data: userMsg,
     });
   } else {
@@ -199,7 +199,7 @@ app.put("/api/:userId/mensagens/:mensagemId", (req: Request, res: Response) => {
       "Mensagem: " +
       idMsg +
       ". Do usuário: " +
-      idUser +
+      users[idUser].nome +
       " foi editada com sucesso",
     data: userMsg,
   });
@@ -219,7 +219,7 @@ app.delete(
         "Mensagem: " +
         idMsg +
         ". Do usuário: " +
-        idUser +
+        users[idUser].nome +
         " foi deletada com sucesso",
       data: userMsg,
     });
