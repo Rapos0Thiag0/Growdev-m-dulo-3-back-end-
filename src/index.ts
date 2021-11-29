@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction, application } from "express";
 import "dotenv/config";
 import cors from "cors";
-import { userInfo } from "os";
 
 const app = express();
 
@@ -71,7 +70,7 @@ const users: Array<User> = [
 ];
 
 // rota chamada ao criar novo usuário
-app.post("/user", (req: Request, res: Response) => {
+app.post("/api", (req: Request, res: Response) => {
   const nome = String(req.body.nome);
   const senha = String(req.body.senha);
 
@@ -98,13 +97,13 @@ app.post("/user", (req: Request, res: Response) => {
 });
 
 //rota para exibir todos os usuários criados
-app.get("/users", (req: Request, res: Response) => {
+app.get("/api", (req: Request, res: Response) => {
   let usuarios = users.map((user) => user);
   res.json({ message: "Lista de usuários", data: usuarios });
 });
 
 // rota para criar nova mensagem
-app.post("/user/:userId", (req: Request, res: Response) => {
+app.post("/api/:userId", (req: Request, res: Response) => {
   const idUser = Number(req.params.userId);
   const desc = String(req.body.desc);
   const det = String(req.body.det);
@@ -139,7 +138,7 @@ app.post("/user/:userId", (req: Request, res: Response) => {
 });
 
 //rota para ver as mensagens do usuário
-app.get("/user/:userId", (req: Request, res: Response) => {
+app.get("/api/:userId", (req: Request, res: Response) => {
   const idUser: number = Number(req.params.userId);
 
   const userMsg: Array<Mensagens> = [...users[idUser].mensagens];
@@ -158,63 +157,57 @@ app.get("/user/:userId", (req: Request, res: Response) => {
 });
 
 //rota para ver uma mensagem do usuário
-app.get(
-  "/user/:userId/mensagens/:mensagemId",
-  (req: Request, res: Response) => {
-    const idUser: number = Number(req.params.userId);
-    const idMsg: number = Number(req.params.mensagemId);
+app.get("/api/:userId/mensagens/:mensagemId", (req: Request, res: Response) => {
+  const idUser: number = Number(req.params.userId);
+  const idMsg: number = Number(req.params.mensagemId);
 
-    const userMsg: Mensagens = users[idUser].mensagens[idMsg];
-    console.log(userMsg);
+  const userMsg: Mensagens = users[idUser].mensagens[idMsg];
+  console.log(userMsg);
 
-    if (userMsg !== undefined) {
-      res.status(200).json({
-        message: "Mensagem: " + idMsg + ". Do usuário: " + idUser,
-        data: userMsg,
-      });
-    } else {
-      res.status(404).json({
-        message:
-          "Não existe mensagem para o id: " +
-          idMsg +
-          " para o usuário: " +
-          users[idUser].nome,
-        error: "message_not_found",
-      });
-    }
-  }
-);
-
-//rota para editar mensagem do usuário
-app.put(
-  "/user/:userId/mensagens/:mensagemId",
-  (req: Request, res: Response) => {
-    const idUser: number = Number(req.params.userId);
-    const idMsg: number = Number(req.params.mensagemId);
-    const descricao = String(req.body.desc);
-    const detalhamento = String(req.body.det);
-
-    users[idUser].mensagens[idMsg].desc = descricao;
-    users[idUser].mensagens[idMsg].det = detalhamento;
-
-    const userMsg: Mensagens = users[idUser].mensagens[idMsg];
-    console.log(userMsg);
-
+  if (userMsg !== undefined) {
     res.status(200).json({
-      message:
-        "Mensagem: " +
-        idMsg +
-        ". Do usuário: " +
-        idUser +
-        " foi editada com sucesso",
+      message: "Mensagem: " + idMsg + ". Do usuário: " + idUser,
       data: userMsg,
     });
+  } else {
+    res.status(404).json({
+      message:
+        "Não existe mensagem para o id: " +
+        idMsg +
+        " para o usuário: " +
+        users[idUser].nome,
+      error: "message_not_found",
+    });
   }
-);
+});
+
+//rota para editar mensagem do usuário
+app.put("/api/:userId/mensagens/:mensagemId", (req: Request, res: Response) => {
+  const idUser: number = Number(req.params.userId);
+  const idMsg: number = Number(req.params.mensagemId);
+  const descricao = String(req.body.desc);
+  const detalhamento = String(req.body.det);
+
+  users[idUser].mensagens[idMsg].desc = descricao;
+  users[idUser].mensagens[idMsg].det = detalhamento;
+
+  const userMsg: Mensagens = users[idUser].mensagens[idMsg];
+  console.log(userMsg);
+
+  res.status(200).json({
+    message:
+      "Mensagem: " +
+      idMsg +
+      ". Do usuário: " +
+      idUser +
+      " foi editada com sucesso",
+    data: userMsg,
+  });
+});
 
 //rota para deletar mensagem do usuário
 app.delete(
-  "/user/:userId/mensagem/:mensagemId",
+  "/api/:userId/mensagem/:mensagemId",
   (req: Request, res: Response) => {
     const idUser: number = Number(req.params.userId);
     const idMsg: number = Number(req.params.mensagemId);
