@@ -42,12 +42,12 @@ class User {
 
 // classe construtora das mensagens
 class Mensagens {
-  public id: number;
+  // public id: number;
   public desc: string;
   public det: string;
-
-  constructor(id: number, desc: string, det: string) {
-    this.id = id;
+  // id: number,
+  constructor(desc: string, det: string) {
+    // this.id = id;
     this.desc = desc;
     this.det = det;
   }
@@ -61,7 +61,6 @@ const users: Array<User> = [
     senha: "321321321",
     mensagens: [
       {
-        id: 0,
         desc: "primeira mensagem",
         det: "primeira mensagem",
       },
@@ -107,12 +106,10 @@ app.get("/api/:id", (req: Request, res: Response) => {
   if (idEncontrado !== undefined) {
     res.status(200).send({ message: "Usuário encontrado", data: idEncontrado });
   } else {
-    res
-      .status(400)
-      .send({
-        message: "Não foi possível localizar o usuário com id: " + idProcurado,
-        error: "user_not_found",
-      });
+    res.status(400).send({
+      message: "Não foi possível localizar o usuário com id: " + idProcurado,
+      error: "user_not_found",
+    });
   }
 });
 
@@ -136,13 +133,14 @@ app.post("/api/:userId", (req: Request, res: Response) => {
         .status(400)
         .json({ message: "Preencha todos os campos!", error: "empty_fields" });
     } else {
-      let mensagensID = users[idUser].mensagens.length;
-      const novaMensagem: Mensagens = new Mensagens(mensagensID, desc, det);
+      const novaMensagem: Mensagens = new Mensagens(desc, det);
       users[idUser].mensagens.push(novaMensagem);
-      mensagensID++;
+
+      let mensagensID = users[idUser].mensagens.length - 1;
+      let userData = users[idUser].mensagens[mensagensID];
       res.status(201).json({
         message: "Nova mensagem criada com sucesso",
-        data: novaMensagem,
+        data: userData,
       });
     }
     res.status(200).json({
