@@ -96,6 +96,26 @@ app.post("/api", (req: Request, res: Response) => {
   }
 });
 
+//rota para exibir um usuário pelo seu id
+app.get("/api/:id", (req: Request, res: Response) => {
+  const idProcurado: number = Number(req.params.id);
+
+  let idEncontrado: User | undefined = users.find(
+    (usuario) => usuario.id === idProcurado
+  );
+
+  if (idEncontrado !== undefined) {
+    res.status(200).send({ message: "Usuário encontrado", data: idEncontrado });
+  } else {
+    res
+      .status(400)
+      .send({
+        message: "Não foi possível localizar o usuário com id: " + idProcurado,
+        error: "user_not_found",
+      });
+  }
+});
+
 //rota para exibir todos os usuários criados
 app.get("/api", (req: Request, res: Response) => {
   let usuarios = users.map((user) => user);
