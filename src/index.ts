@@ -139,8 +139,8 @@ app.post("/api/:userId", (req: Request, res: Response) => {
       let mensagensID = users[idUser].mensagens.length - 1;
       let userData = users[idUser].mensagens[mensagensID];
       res.status(201).json({
-        message: "Nova mensagem criada com sucesso",
-        data: userData,
+        message: userData,
+        data: "Nova mensagem criada com sucesso",
       });
     }
     res.status(200).json({
@@ -175,7 +175,7 @@ app.get("/api/:userId", (req: Request, res: Response) => {
 });
 
 //rota para ver uma mensagem do usuário
-app.get("/api/:userId/mensagens/:mensagemId", (req: Request, res: Response) => {
+app.get("/api/:userId/mensagem/:mensagemId", (req: Request, res: Response) => {
   const idUser: number = Number(req.params.userId);
   const idMsg: number = Number(req.params.mensagemId);
 
@@ -184,23 +184,19 @@ app.get("/api/:userId/mensagens/:mensagemId", (req: Request, res: Response) => {
 
   if (userMsg !== undefined) {
     res.status(200).json({
-      message: "Mensagem: " + idMsg + ". Do usuário: " + users[idUser].nome,
-      data: userMsg,
+      message: userMsg,
+      data: "Mensagem do usuário: " + users[idUser].nome,
     });
   } else {
     res.status(404).json({
-      message:
-        "Não existe mensagem para o id: " +
-        idMsg +
-        " para o usuário: " +
-        users[idUser].nome,
+      message: "Não existe mensagem para o usuário: " + users[idUser].nome,
       error: "message_not_found",
     });
   }
 });
 
 //rota para editar mensagem do usuário
-app.put("/api/:userId/mensagens/:mensagemId", (req: Request, res: Response) => {
+app.put("/api/:userId/mensagem/:mensagemId", (req: Request, res: Response) => {
   const idUser: number = Number(req.params.userId);
   const idMsg: number = Number(req.params.mensagemId);
   const descricao = String(req.body.desc);
@@ -214,11 +210,7 @@ app.put("/api/:userId/mensagens/:mensagemId", (req: Request, res: Response) => {
 
   res.status(200).json({
     message:
-      "Mensagem: " +
-      idMsg +
-      ". Do usuário: " +
-      users[idUser].nome +
-      " foi editada com sucesso",
+      "Mensagem do usuário: " + users[idUser].nome + " foi editada com sucesso",
     data: userMsg,
   });
 });
@@ -234,9 +226,7 @@ app.delete(
     users[idUser].mensagens.splice(idMsg, 1);
     res.status(200).json({
       message:
-        "Mensagem: " +
-        idMsg +
-        ". Do usuário: " +
+        "Mensagem do usuário: " +
         users[idUser].nome +
         " foi deletada com sucesso",
       data: userMsg,
