@@ -13,10 +13,6 @@ app.listen(port, () => {
   console.log(`Servidor inicializado e rodando na PORT: ${port}`);
 });
 
-// contador que vai incrementar gerando os id unicos dos usuários
-// contagem em 1 pois exite um usuario padrão de teste
-// let userID: number = 2;
-
 //classe criadora de usuários
 class User {
   public id: number;
@@ -37,17 +33,12 @@ class User {
   }
 }
 
-// contador que vai incrementar gerando as id unicas das mensagens
-// let mensagensID: number = 2;
-
 // classe construtora das mensagens
 class Mensagens {
-  // public id: number;
   public desc: string;
   public det: string;
-  // id: number,
+
   constructor(desc: string, det: string) {
-    // this.id = id;
     this.desc = desc;
     this.det = det;
   }
@@ -180,7 +171,6 @@ app.get("/api/:userId/mensagem/:mensagemId", (req: Request, res: Response) => {
   const idMsg: number = Number(req.params.mensagemId);
 
   const userMsg: Mensagens = users[idUser].mensagens[idMsg];
-  console.log(userMsg);
 
   if (userMsg !== undefined) {
     res.status(200).json({
@@ -206,7 +196,6 @@ app.put("/api/:userId/mensagem/:mensagemId", (req: Request, res: Response) => {
   users[idUser].mensagens[idMsg].det = detalhamento;
 
   const userMsg: Mensagens = users[idUser].mensagens[idMsg];
-  console.log(userMsg);
 
   res.status(200).json({
     message:
