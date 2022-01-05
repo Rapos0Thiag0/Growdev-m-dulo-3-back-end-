@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction, application } from "express";
 import "dotenv/config";
 import cors from "cors";
+import { randomUUID } from "crypto";
 
 const app = express();
 
@@ -35,10 +36,12 @@ class User {
 
 // classe construtora das mensagens
 class Mensagens {
+  public id: string;
   public desc: string;
   public det: string;
 
-  constructor(desc: string, det: string) {
+  constructor(id: string, desc: string, det: string) {
+    this.id = id;
     this.desc = desc;
     this.det = det;
   }
@@ -52,6 +55,7 @@ const users: Array<User> = [
     senha: "321321321",
     mensagens: [
       {
+        id: randomUUID(),
         desc: "primeira mensagem",
         det: "primeira mensagem",
       },
@@ -73,15 +77,37 @@ app.post("/api", (req: Request, res: Response) => {
 
     if (validaNome == -1) {
       let novasMensagens: Array<Mensagens> = [];
-      let userID = users.length;
+      let userID = users.length++;
       const novoUsuario: User = new User(userID, nome, senha, novasMensagens);
       users.push(novoUsuario);
-      userID++;
+      // userID++;
       res.status(201).json(novoUsuario);
     } else {
       res
         .status(400)
         .json({ message: "Usuário já existe", error: "user_exist" });
+    }
+  }
+});
+app.post("/login", (req: Request, res: Response) => {
+  const nome = String(req.body.nome);
+  const senha = String(req.body.senha);
+
+  if (!!!nome || nome == "" || !!!senha || senha == "") {
+    res
+      .status(400)
+      .json({ message: "Preencha todos os campos!", error: "empty_fields" });
+  } else {
+    const validaNome = users.findIndex((user) => user.nome == nome);
+    const validaSenha = users.findIndex((user) => user.senha == senha);
+
+    if (validaNome !== -1 && validaSenha !== -1) {
+      const usuario = users[validaNome];
+      res.status(201).json(usuario.id);
+    } else {
+      res
+        .status(400)
+        .json({ message: "Usuário não existe", error: "user_not_exist" });
     }
   }
 });
@@ -124,15 +150,11 @@ app.post("/api/:userId", (req: Request, res: Response) => {
         .status(400)
         .json({ message: "Preencha todos os campos!", error: "empty_fields" });
     } else {
-      const novaMensagem: Mensagens = new Mensagens(desc, det);
+      const novaMensagem: Mensagens = new Mensagens(randomUUID(), desc, det);
       users[idUser].mensagens.push(novaMensagem);
 
-      let mensagensID = users[idUser].mensagens.length - 1;
-      let userData = users[idUser].mensagens[mensagensID];
-      res.status(201).json({
-        message: userData,
-        data: "Nova mensagem criada com sucesso",
-      });
+      let userData = users[idUser].mensagens;
+      res.status(201).json(userData);
     }
     res.status(200).json({
       message: "Sucesso ao criar nova mensagem",
@@ -168,9 +190,11 @@ app.get("/api/:userId", (req: Request, res: Response) => {
 //rota para ver uma mensagem do usuário
 app.get("/api/:userId/mensagem/:mensagemId", (req: Request, res: Response) => {
   const idUser: number = Number(req.params.userId);
-  const idMsg: number = Number(req.params.mensagemId);
+  const idMsg: string = String(req.params.mensagemId);
 
-  const userMsg: Mensagens = users[idUser].mensagens[idMsg];
+  const userMsg: Mensagens | undefined = users[idUser].mensagens.find(
+    (user) => user.id == idMsg
+  );
 
   if (userMsg !== undefined) {
     res.status(200).json({
@@ -188,14 +212,18 @@ app.get("/api/:userId/mensagem/:mensagemId", (req: Request, res: Response) => {
 //rota para editar mensagem do usuário
 app.put("/api/:userId/mensagem/:mensagemId", (req: Request, res: Response) => {
   const idUser: number = Number(req.params.userId);
-  const idMsg: number = Number(req.params.mensagemId);
+  const idMsg: string = String(req.params.mensagemId);
   const descricao = String(req.body.desc);
   const detalhamento = String(req.body.det);
 
-  users[idUser].mensagens[idMsg].desc = descricao;
-  users[idUser].mensagens[idMsg].det = detalhamento;
+  const msgIndex = users[idUser].mensagens.findIndex(
+    (user) => user.id == idMsg
+  );
 
-  const userMsg: Mensagens = users[idUser].mensagens[idMsg];
+  users[idUser].mensagens[msgIndex].desc = descricao;
+  users[idUser].mensagens[msgIndex].det = detalhamento;
+
+  const userMsg: Mensagens = users[idUser].mensagens[msgIndex];
 
   res.status(200).json({
     message:
@@ -209,10 +237,14 @@ app.delete(
   "/api/:userId/mensagem/:mensagemId",
   (req: Request, res: Response) => {
     const idUser: number = Number(req.params.userId);
-    const idMsg: number = Number(req.params.mensagemId);
+    const idMsg: string = String(req.params.mensagemId);
 
-    const userMsg: Mensagens = users[idUser].mensagens[idMsg];
-    users[idUser].mensagens.splice(idMsg, 1);
+    const msgIndex = users[idUser].mensagens.findIndex(
+      (user) => user.id == idMsg
+    );
+
+    const userMsg: Mensagens = users[idUser].mensagens[msgIndex];
+    users[idUser].mensagens.splice(msgIndex, 1);
     res.status(200).json({
       message:
         "Mensagem do usuário: " +
